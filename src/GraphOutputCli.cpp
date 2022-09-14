@@ -3,6 +3,8 @@
 #include <iostream>
 #include <sstream>
 
+#include <string.h>
+
 #include "FontColorCli.h"
 
 using namespace GraphCli;
@@ -12,13 +14,14 @@ static unsigned short MAX_WIDTH = 70;
 void GraphOutputCli::Output(const char* pszGraphName, const unsigned short utilization) const {
 
   std::cout << GraphCli::Font::ColorOutput(GraphCli::Font::Color::White);
-
-  std::cout << "******************************" << std::endl;
+  const unsigned short maxBoxLength = strlen(pszGraphName) + 4;
+  std::cout << std::string(maxBoxLength, '*') << std::endl;
   std::cout << "* ";
   std::cout << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Cyan);
-  std::cout << pszGraphName <<std::endl;
+  std::cout << pszGraphName; 
   std::cout << GraphCli::Font::ColorOutput(GraphCli::Font::Color::White);
-  std::cout << "******************************" << std::endl;
+  std::cout << " *" << std::endl;
+  std::cout << std::string(maxBoxLength, '*') << std::endl;
 
   std::stringstream ss;  
   ss << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Yellow);

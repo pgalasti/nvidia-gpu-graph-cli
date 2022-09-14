@@ -6,7 +6,7 @@ NvidiaSmiParser::~NvidiaSmiParser() {}
 
 const Metrics NvidiaSmiParser::Parse() {
 
-  const std::string execOutput = GApi::Util::GetExecOutput("nvidia-smi --query-gpu=utilization.gpu,utilization.memory,memory.total,memory.free,memory.used --format=csv,noheader");
+  const std::string execOutput = GApi::Util::GetExecOutput("nvidia-smi --query-gpu=utilization.gpu,utilization.memory,memory.total,memory.free,memory.used,temperature.gpu,name --format=csv,noheader");
 
   this->stringParser.Parse(execOutput, ",");
   this->stringParser.getFirst();
@@ -20,12 +20,18 @@ const Metrics NvidiaSmiParser::Parse() {
   std::string strFreeMemory = this->stringParser.getToken();
   this->stringParser++;
   std::string strUsedMemory = this->stringParser.getToken();
-
+  this->stringParser++;
+  std::string strTemperature = this->stringParser.getToken();
+  this->stringParser++;
+  std::string strName = this->stringParser.getToken();
+  
   strGpuUtilization = GApi::Util::ltrim(strGpuUtilization);
   strMemoryUtilization = GApi::Util::ltrim(strMemoryUtilization);
   strTotalMemory = GApi::Util::ltrim(strTotalMemory);
   strFreeMemory = GApi::Util::ltrim(strFreeMemory);
   strUsedMemory = GApi::Util::ltrim(strUsedMemory);
+  strTemperature = GApi::Util::ltrim(strTemperature);
+  strName = GApi::Util::ltrim(strName);
 
   Metrics metrics;
 
@@ -53,6 +59,12 @@ const Metrics NvidiaSmiParser::Parse() {
   this->stringParser.Parse(strUsedMemory, " ");
   this->stringParser.getFirst();
   metrics.usedMemory = std::stoi(this->stringParser.getToken());
+
+  /** Temperature **/
+  metrics.temperature = std::stoi(strTemperature);
+
+  /** Product Name **/
+  strncpy(metrics.szProductName, strName.c_str(), 255);
 
   return metrics;
 }

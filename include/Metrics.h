@@ -8,6 +8,8 @@ namespace GraphCli {
     Metrics() {
       memset(this, 0, sizeof(Metrics));
     }
+    char szProductName[256];
+    unsigned short temperature;
     unsigned short gpuUtilization;
     unsigned short memoryUtilization;
     unsigned int totalMemory;

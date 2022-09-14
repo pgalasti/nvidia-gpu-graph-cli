@@ -51,11 +51,22 @@ void displayMetrics() {
     std::cout << "* Used Memory: " << metrics.usedMemory << "MiBs" << std::endl;
     std::cout << "************************" << std::endl;
     std::cout << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Default);
-
     std::cout << std::endl;
 
+    std::cout << metrics.szProductName << std::endl;
+    std::cout << "Temperature: ";
+    if(metrics.temperature < 50) {
+      std::cout << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Green);
+    } else if(metrics.temperature > 50 && metrics.temperature < 70) {
+      std::cout << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Yellow);
+    } else if(metrics.temperature > 70) {
+      std::cout << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Red);
+    }
+    std::cout << metrics.temperature << " C" << std::endl;
+    std::cout << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Default);
+
     output.Output("GPU Utilization", metrics.gpuUtilization);
-    std::cout << std::endl << std::endl;
+    std::cout << std::endl;
     output.Output("GPU Memory Utilization", metrics.memoryUtilization);
 
     std::this_thread::sleep_for(std::chrono::seconds(1));
