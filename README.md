@@ -1,8 +1,10 @@
 # nvidia-gpu-graph-cli
 A simple and lightweight CLI graphing tool for NVIDIA video cards
 
-![img.png](img.png)
-
+## Current Usage Mode
+![current-usage.png](current-usage.png)
+## Graph Mode
+![graph-mode.png](graph-mode.png)
 **nvidia-smi** installation is required. If not found in path, it will error out at runtime.
 
 ## Make

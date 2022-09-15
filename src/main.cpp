@@ -2,6 +2,7 @@
 #include <thread>
 #include <chrono>
 #include <atomic>
+#include <iomanip>
 
 #include <unistd.h>
 #include <termios.h>
@@ -15,61 +16,126 @@
 
 const char CLEAR_SCREEN[] = "\033[2J\033[H";
 
-void displayMetrics();
+void displayHeader(const GraphCli::Metrics& metrics);
+void displayProgressMetrics();
+void displayGraphMetrics();
+bool stopThread(std::atomic_bool& stop, std::thread& theThread);
 bool initCheck();
 char captureInput();
-std::atomic_bool stopThread = false;
+
+std::atomic_bool progressThread = false;
+std::atomic_bool graphThread = false;
+
+GraphCli::OutputCli cliOutput;
 
 int main(int argc, char** argv) {
 
   if(!initCheck())
     return 1;
 
-  std::thread displayThread(displayMetrics);
-  while(captureInput() != 'q');
+  progressThread = true;
+  std::thread currentDisplayThread(displayProgressMetrics);
+  char userInput;
+  do {
+    userInput = captureInput();
+    
+    if(userInput == 'g' || userInput == 'G') {
+      userInput = ' ';
+      if(!stopThread(progressThread, currentDisplayThread))
+        continue;
 
-  stopThread = true;
-  displayThread.join();
+      graphThread = true;
+      currentDisplayThread = std::thread(displayGraphMetrics);
+
+    } else if(userInput == 'p' || userInput == 'P') {
+      userInput = ' ';
+
+      if(!stopThread(graphThread, currentDisplayThread))
+        continue;
+
+      progressThread = true;
+      currentDisplayThread = std::thread(displayProgressMetrics);
+    }
+
+
+  } while(userInput != 'q');
+
+  /** Shutdown threads **/
+  stopThread(progressThread, currentDisplayThread);
+  stopThread(graphThread, currentDisplayThread);
   return 0;
 }
 
-void displayMetrics() {
+void displayHeader(const GraphCli::Metrics& metrics) {
+
+  std::stringstream ss;
+  
+  /** Product and driver version**/
+  ss << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Cyan);
+  ss << metrics.szProductName << " - ";
+  ss << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Green);
+  ss << "Driver " << metrics.szDriver;
+  ss << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Default);
+  std::cout << ss.str();
+
+  /** Default header **/
+  cliOutput.OutputHeader(metrics);
+
+  /** User Options **/
+  std::cout 
+	  << "[" << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Cyan) 
+	  << " G " << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Default) 
+	  << "] - " << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Cyan)
+	  << "Graph Mode" << std::setw(8) << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Default)
+	  << "[" << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Cyan)
+          << " P " << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Default)
+          << "] - " << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Cyan)
+	  << "Current Usage Mode"
+          << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Default)
+	  << std::endl;
+
+}
+
+void displayProgressMetrics() {
   
   GraphCli::NvidiaSmiParser parser;
   GraphCli::Metrics metrics;
-  GraphCli::OutputCli cliOutput;  
   
   for(;;) {
     
-    if(stopThread)
+    if(!progressThread)
       return;
 
     metrics = parser.Parse();
-  
+    cliOutput.RecordInterval(metrics);
+
     std::cout << CLEAR_SCREEN;
- 
-    std::cout << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Cyan);  
-    std::cout << metrics.szProductName << " - ";
-    std::cout << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Green);
-    std::cout << "Driver " << metrics.szDriver;
-    std::cout << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Default);
-    cliOutput.OutputHeader(metrics);
 
-    std::cout << "Temperature: ";
-
-    if(metrics.temperature < 50) {
-      std::cout << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Green);
-    } else if(metrics.temperature > 50 && metrics.temperature < 70) {
-      std::cout << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Yellow);
-    } else if(metrics.temperature > 70) {
-      std::cout << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Red);
-    }
-    std::cout << metrics.temperature << " C" << std::endl;
-    std::cout << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Default);
-
+    displayHeader(metrics); 
+    std::cout << std::endl;
     cliOutput.OutputProgress("GPU Utilization", metrics.gpuUtilization);
-//    std::cout << std::endl;
     cliOutput.OutputProgress("GPU Memory Utilization", metrics.memoryUtilization);
+
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+  }
+}
+
+void displayGraphMetrics() {
+  GraphCli::NvidiaSmiParser parser;
+  GraphCli::Metrics metrics;
+
+  for(;;) {
+
+    if(!graphThread)
+      return;
+
+    metrics = parser.Parse();
+    cliOutput.RecordInterval(metrics);
+
+    std::cout << CLEAR_SCREEN;
+
+    displayHeader(metrics);
+    cliOutput.OutputGraphCurrentState();
 
     std::this_thread::sleep_for(std::chrono::seconds(1));
   }
@@ -106,4 +172,14 @@ char captureInput() {
   if(tcsetattr(0, TCSADRAIN, &old) < 0)
     perror("tcsetattr ~ICANON");
   return buf;
+}
+
+bool stopThread(std::atomic_bool& stop, std::thread& theThread) {
+  
+  if(!stop) 
+    return false;
+
+  stop = false;
+  theThread.join();
+  return true;
 }
