@@ -11,7 +11,7 @@ using namespace GraphCli;
 
 static unsigned short MAX_WIDTH = 70;
 
-void GraphOutputCli::Output(const char* pszGraphName, const unsigned short utilization) const {
+void OutputCli::OutputProgress(const char* pszGraphName, const unsigned short utilization) const {
 
   std::cout << GraphCli::Font::ColorOutput(GraphCli::Font::Color::White);
   const unsigned short maxBoxLength = strlen(pszGraphName) + 4;
@@ -53,7 +53,18 @@ void GraphOutputCli::Output(const char* pszGraphName, const unsigned short utili
     ss << "\n";
   }
   std::cout << ss.str();
-//  std::cout.flush();
 
   std::cout << GraphCli::Font::ColorOutput(GraphCli::Font::Color::White);
+}
+
+void OutputCli::OutputHeader(const Metrics& metrics) const {
+  std::cout << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Bold);
+  std::cout << "************************" << std::endl;
+  std::cout << "* GPU Utilization: " << metrics.gpuUtilization << "%" << std::endl;
+  std::cout << "* Full Memory: " << metrics.totalMemory << "MiBs" << std::endl;
+  std::cout << "* Free Memory: " << metrics.freeMemory << "MiBs" << std::endl;
+  std::cout << "* Used Memory: " << metrics.usedMemory << "MiBs" << std::endl;
+  std::cout << "************************" << std::endl;
+  std::cout << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Default);
+  std::cout << std::endl;
 }

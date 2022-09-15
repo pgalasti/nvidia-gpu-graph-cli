@@ -2,15 +2,19 @@
 #define G_GRAPH_OUTPUT_CLI_H
 
 #include "GDefaults.h"
+#include "Metrics.h"
+
 namespace GraphCli {
 	
-  class GraphOutputCli {
+  class OutputCli {
 
     public:
-	DEFAULT_CONSTRUCTOR(GraphOutputCli);
-	DEFAULT_DECONSTRUCTOR(GraphOutputCli);
+	DEFAULT_CONSTRUCTOR(OutputCli);
+	DEFAULT_DECONSTRUCTOR(OutputCli);
 
- 	void Output(const char* pszGraphName, const unsigned short utilization) const;
+	void OutputHeader(const Metrics& metrics) const;
+ 	void OutputProgress(const char* pszGraphName, const unsigned short utilization) const;
+
 
   };
 }
