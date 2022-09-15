@@ -49,7 +49,9 @@ void displayMetrics() {
     std::cout << CLEAR_SCREEN;
  
     std::cout << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Cyan);  
-    std::cout << metrics.szProductName;
+    std::cout << metrics.szProductName << " - ";
+    std::cout << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Green);
+    std::cout << "Driver " << metrics.szDriver;
     std::cout << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Default);
     cliOutput.OutputHeader(metrics);
 
@@ -66,7 +68,7 @@ void displayMetrics() {
     std::cout << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Default);
 
     cliOutput.OutputProgress("GPU Utilization", metrics.gpuUtilization);
-    std::cout << std::endl;
+//    std::cout << std::endl;
     cliOutput.OutputProgress("GPU Memory Utilization", metrics.memoryUtilization);
 
     std::this_thread::sleep_for(std::chrono::seconds(1));

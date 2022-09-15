@@ -6,7 +6,7 @@ NvidiaSmiParser::~NvidiaSmiParser() {}
 
 const Metrics NvidiaSmiParser::Parse() {
 
-  const std::string execOutput = GApi::Util::GetExecOutput("nvidia-smi --query-gpu=utilization.gpu,utilization.memory,memory.total,memory.free,memory.used,temperature.gpu,name --format=csv,noheader");
+  const std::string execOutput = GApi::Util::GetExecOutput("nvidia-smi --query-gpu=utilization.gpu,utilization.memory,memory.total,memory.free,memory.used,temperature.gpu,name,driver_version --format=csv,noheader");
 
   this->stringParser.Parse(execOutput, ",");
   this->stringParser.getFirst();
@@ -24,6 +24,8 @@ const Metrics NvidiaSmiParser::Parse() {
   std::string strTemperature = this->stringParser.getToken();
   this->stringParser++;
   std::string strName = this->stringParser.getToken();
+  this->stringParser++;
+  std::string strDriver = this->stringParser.getToken();
   
   strGpuUtilization = GApi::Util::ltrim(strGpuUtilization);
   strMemoryUtilization = GApi::Util::ltrim(strMemoryUtilization);
@@ -32,6 +34,7 @@ const Metrics NvidiaSmiParser::Parse() {
   strUsedMemory = GApi::Util::ltrim(strUsedMemory);
   strTemperature = GApi::Util::ltrim(strTemperature);
   strName = GApi::Util::ltrim(strName);
+  strDriver = GApi::Util::ltrim(strDriver);
 
   Metrics metrics;
 
@@ -65,6 +68,9 @@ const Metrics NvidiaSmiParser::Parse() {
 
   /** Product Name **/
   strncpy(metrics.szProductName, strName.c_str(), 255);
+
+  /** Driver Information **/
+  strncpy(metrics.szDriver, strDriver.c_str(), 255);
 
   return metrics;
 }

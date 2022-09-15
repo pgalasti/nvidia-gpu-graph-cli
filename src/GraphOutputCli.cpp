@@ -9,16 +9,18 @@
 
 using namespace GraphCli;
 
-static unsigned short MAX_WIDTH = 70;
+static unsigned short DEFAULT_MAX_WIDTH = 40;
 
 void OutputCli::OutputProgress(const char* pszGraphName, const unsigned short utilization) const {
 
+  const unsigned short maxWidth = DEFAULT_MAX_WIDTH;
   std::cout << GraphCli::Font::ColorOutput(GraphCli::Font::Color::White);
-  const unsigned short maxBoxLength = strlen(pszGraphName) + 4;
+  const unsigned short maxBoxLength = maxWidth+2;
   std::cout << std::string(maxBoxLength, '*') << std::endl;
   std::cout << "* ";
   std::cout << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Cyan);
   std::cout << pszGraphName; 
+  std::cout << std::string(maxWidth - strlen(pszGraphName) -2, ' ');
   std::cout << GraphCli::Font::ColorOutput(GraphCli::Font::Color::White);
   std::cout << " *" << std::endl;
   std::cout << std::string(maxBoxLength, '*') << std::endl;
@@ -28,8 +30,8 @@ void OutputCli::OutputProgress(const char* pszGraphName, const unsigned short ut
   const float progress = utilization*.01;
   for(int j = 0; j < 3; ++j) {
     ss << "[";
-    const unsigned short position = MAX_WIDTH * progress;
-    for(int i = 0; i < MAX_WIDTH; ++i) {
+    const unsigned short position = maxWidth * progress;
+    for(int i = 0; i < maxWidth; ++i) {
       if(i < position)
 	  ss << "=";
       else if(i == position)
