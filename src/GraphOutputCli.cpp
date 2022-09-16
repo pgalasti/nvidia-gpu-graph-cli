@@ -34,17 +34,22 @@ void OutputCli::OutputProgress(const char* pszGraphName, const unsigned short ut
   std::stringstream ss;  
   ss << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Yellow);
   const float progress = utilization*.01;
-  for(int j = 0; j < 3; ++j) {
+  for(int j = 0; j < 2; ++j) {
     ss << "[";
     const unsigned short position = maxWidth * progress;
+    std::string barColor;
     for(int i = 0; i < maxWidth; ++i) {
-      if(i < position)
-	  ss << "=";
-      else if(i == position)
-	  ss << "|";
-      else
-  	  ss << " ";   
+      if(i <= position) {
+        if(utilization <30) barColor = GraphCli::Font::ColorOutput(GraphCli::Font::Color::BackgroundGre);
+	else if(utilization  >30 && utilization <=75) barColor = GraphCli::Font::ColorOutput(GraphCli::Font::Color::BackgroundYel);
+	else if(utilization > 75) barColor = GraphCli::Font::ColorOutput(GraphCli::Font::Color::BackgroundRed);
+      }
+      else {
+	  barColor = GraphCli::Font::ColorOutput(GraphCli::Font::Color::BackgroundDft);
+      }
+      ss << barColor << " ";
     }
+    ss << GraphCli::Font::ColorOutput(GraphCli::Font::Color::BackgroundDft);
     ss << "] ";
     if(j == 1) {
       if(utilization > 30 && utilization <= 75) {
@@ -117,6 +122,7 @@ void OutputCli::OutputGraphCurrentState() const {
     ss << std::endl;
   } 
   ss << "       -------------------------------------------------------------" << std::endl;
+  ss << "Secs   60           45             30             15               1" << std::endl;
 
   ss << std::endl;
   std::cout << ss.str();

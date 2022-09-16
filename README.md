@@ -6,9 +6,8 @@ A simple and lightweight CLI graphing tool for NVIDIA video cards
 ## Graph Mode
 ![graph-mode.png](graph-mode.png)
 
-
 ## Make
-**nvidia-smi** installation is required. If not found in path, it will error out at runtime.
+**nvidia-smi** tool installation is required. If not found in path, it will error out at runtime.
 
 ### Build
 Builds binary file.

@@ -33,8 +33,8 @@ int main(int argc, char** argv) {
   if(!initCheck())
     return 1;
 
-  progressThread = true;
-  std::thread currentDisplayThread(displayProgressMetrics);
+  graphThread = true;
+  std::thread currentDisplayThread(displayGraphMetrics);
   char userInput;
   do {
     userInput = captureInput();
@@ -90,8 +90,11 @@ void displayHeader(const GraphCli::Metrics& metrics) {
 	  << "[" << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Cyan)
           << " P " << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Default)
           << "] - " << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Cyan)
-	  << "Current Usage Mode"
-          << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Default)
+	  << "Current Usage Mode" << std::setw(8) << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Default)
+	  << "[" << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Red)
+	  << " Q " << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Default)
+	  << "] - " << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Red)
+	  << "Quit" << GraphCli::Font::ColorOutput(GraphCli::Font::Color::Default)
 	  << std::endl;
 
 }
