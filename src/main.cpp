@@ -104,6 +104,8 @@ void displayProgressMetrics() {
   GraphCli::NvidiaSmiParser parser;
   GraphCli::Metrics metrics;
   
+  auto now = std::chrono::system_clock::now(); 
+  auto lastTimeMs = std::chrono::time_point_cast<std::chrono::milliseconds>(now).time_since_epoch().count(); 
   for(;;) {
     
     if(!progressThread)
@@ -118,8 +120,15 @@ void displayProgressMetrics() {
     std::cout << std::endl;
     cliOutput.OutputProgress("GPU Utilization", metrics.gpuUtilization);
     cliOutput.OutputProgress("GPU Memory Utilization", metrics.memoryUtilization);
-
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    
+    now = std::chrono::system_clock::now();
+    auto deltaTime = std::chrono::time_point_cast<std::chrono::milliseconds>(now).time_since_epoch().count() - lastTimeMs;
+    if(1000 - deltaTime > 0) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1000-deltaTime));
+    }
+    
+    now = std::chrono::system_clock::now();     
+    lastTimeMs = std::chrono::time_point_cast<std::chrono::milliseconds>(now).time_since_epoch().count();
   }
 }
 
@@ -127,6 +136,8 @@ void displayGraphMetrics() {
   GraphCli::NvidiaSmiParser parser;
   GraphCli::Metrics metrics;
 
+  auto now = std::chrono::system_clock::now();
+  auto lastTimeMs = std::chrono::time_point_cast<std::chrono::milliseconds>(now).time_since_epoch().count();
   for(;;) {
 
     if(!graphThread)
@@ -140,7 +151,14 @@ void displayGraphMetrics() {
     displayHeader(metrics);
     cliOutput.OutputGraphCurrentState();
 
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    now = std::chrono::system_clock::now();
+    auto deltaTime = std::chrono::time_point_cast<std::chrono::milliseconds>(now).time_since_epoch().count() - lastTimeMs;
+    if(1000 - deltaTime > 0) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1000-deltaTime));
+    }
+
+    now = std::chrono::system_clock::now();
+    lastTimeMs = std::chrono::time_point_cast<std::chrono::milliseconds>(now).time_since_epoch().count();
   }
 }
 
