@@ -2,8 +2,17 @@
 #define G_PROC_UTILS_H
 
 #include <string>
+#include <algorithm>
 #include "string.h"
 namespace GApi::Util {
+
+  static std::string ltrim(const std::string& s) {
+    std::string result = s;
+    result.erase(result.begin(), std::find_if(result.begin(), result.end(), [](unsigned char c) {
+      return !std::isspace(c);
+    }));
+    return result;
+  }
 
   static std::string GetExecOutput(const char* cmd) {
 

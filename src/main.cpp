@@ -7,7 +7,6 @@
 #include <unistd.h>
 #include <termios.h>
 
-#include "StringUtils.h"
 #include "ProcUtils.h"
 #include "NvidiaSmiParser.h"
 #include "Metrics.h"
